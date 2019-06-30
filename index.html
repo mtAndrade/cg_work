@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Matheus de Andrade - Trabalho CG</title>
+    
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+      
+    <script type="text/javascript" src="js/libs/three.js"></script>
+    <script type="text/javascript" src="js/libs/TrackballControls.js"></script>
+    <script type="text/javascript" src="js/libs/OrbitControls.js"></script>
+    <script type="text/javascript" src="js/libs/WebGL.js"></script>
+
+    <script type="text/javascript" src="js/constants.js"></script>
+    <script type="text/javascript" src="js/objects.js"></script>
+    <style>
+        body {
+            /* set margin to 0 and overflow to hidden, to go fullscreen */
+            margin: 0;
+            overflow: hidden;
+        }
+        #wrapper{
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+         #output{
+            flex: 1;
+            height: 100%;            
+        }
+        #controls{
+            float: left;
+            position: absolute;
+            border-radius: 20px;
+            background-color: white;
+            padding: 15px;
+            margin: 20px;
+            width: 30%;
+            -webkit-box-shadow: 10px 10px 16px -14px rgba(0,0,0,0.75);
+            -moz-box-shadow: 10px 10px 16px -14px rgba(0,0,0,0.75);
+            box-shadow: 10px 10px 16px -14px rgba(0,0,0,0.75);
+        }
+        .options{
+            display: flex;
+            flex-direction: row;
+            padding: 20px;
+        }
+        .input-field{
+            margin: 5px
+        }
+    </style>
+</head>
+<body>
+    <div id="wrapper">
+        <div id="controls">
+            <div class="">
+                <div class="row">
+                    <div class="switch col s4 m4 l4">
+                        <label>
+                            <input type="checkbox" onclick="change('showNormals')">
+                            <span class="lever"></span>
+                            Normals
+                        </label>
+                    </div>
+                    <div class="switch col s4 m4 l4">
+                        <label>
+                            <input type="checkbox" onclick="change('wireframe')">
+                            <span class="lever"></span>
+                            Wireframe
+                        </label>
+                    </div>
+                    <div class="switch col s4 m4 l4">
+                        <label>
+                            <input type="checkbox" onclick="change('texture')">
+                            <span class="lever"></span>
+                            Texture
+                        </label>
+                    </div> 
+                </div>
+                <div class="row">
+                    <div class="switch col s4 m4 l4">
+                        <label>
+                            <input type="checkbox" onclick="change('showBox')">
+                            <span class="lever"></span>
+                            BoundingBox
+                        </label>
+                    </div>
+                    <div class="switch col s4 m4 l4">
+                        <label>
+                            <input type="checkbox" onclick="change('invert_faces')">
+                            <span class="lever"></span>
+                            InvertedFaces
+                        </label>
+                    </div>
+                    <div class="switch col s4 m4 l4">
+                        <label>
+                            <input type="checkbox" onclick="change('axis')">
+                            <span class="lever"></span>
+                            Axis
+                        </label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col col s4 m4 l4">
+                        <div class="switch">
+                            <label>
+                                X-Rotation
+                                <input type="checkbox" onclick="change('xRotation')">
+                                <span class="lever"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col col s4 m4 l4">
+                        <div class="switch">
+                            <label>
+                                Y-Rotation
+                                <input type="checkbox" onclick="change('yRotation')">
+                                <span class="lever"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col col s4 m4 l4">
+                        <div class="switch">
+                            <label>
+                                Z-Rotation
+                                <input type="checkbox" onclick="change('zRotation')">
+                                <span class="lever"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="">
+                <div class="row">
+                    <label>
+                        <input class="with-gap" type="radio" value="Cone" name="obj" onclick="change('object', 0)" checked>
+                        <span>Cone</span>
+                    </label>
+                    <label>
+                        <input class="with-gap" type="radio" value="Cylinder" name="obj" onclick="change('object', 1)">
+                        <span>Cylinder</span>
+                    </label>
+                    <label>
+                        <input class="with-gap" type="radio" value="Paraboloid" name="obj" onclick="change('object', 2)">
+                        <span>Paraboloid</span>
+                    </label>
+                </div>
+                <div class="row">
+                    <label>
+                        <input class="with-gap" type="radio" value="Hyperboloid" name="obj" onclick="change('object', 3)">
+                        <span>Hyperboloid</span>
+                    </label>
+                    <label>
+                        <input class="with-gap" type="radio" value="Hyperbolic Paraboloid" name="obj" onclick="change('object', 4)">
+                        <span>Hyperbolic Paraboloid</span>
+                    </label>
+                    <label>
+                        <input class="with-gap" type="radio" value="Sphere" name="obj" onclick="change('object', 5)">
+                        <span>Sphere</span>
+                    </label>
+                    <label>
+                        <input class="with-gap" type="radio" value="Torus" name="obj" onclick="change('object', 6)">
+                        <span>Torus</span>
+                    </label>
+                </div>
+            </div>  
+            <div class="options">
+                <div class="row">
+                    <div class="input-field">
+                        <input id="last_name" type="number" class="validate" value="1.0"  step="0.1" onchange="change('R1', this.value)">
+                        <label for="last_name">R1</label>
+                    </div>
+                    <div class="input-field ">
+                        <input id="R2" type="number" class="validate" value="0.3" step="0.1" onchange="change('R2', this.value)">
+                        <label for="R2">R2</label>
+                    </div>
+                    <div class="input-field ">
+                        <input id="R3" type="number" class="validate" value="0.5" step="0.1" onchange="change('R3', this.value)">
+                        <label for="R3">R3</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field ">
+                        <input id="nR1" type="number" class="validate" value="25"  onchange="change('nR1', this.value)">
+                        <label for="nR1">nR1</label>
+                    </div>
+                    <div class="input-field">
+                        <input id="nR2" type="number" class="validate" value="10" onchange="change('nR2', this.value)">
+                        <label for="nR2">nR2</label>
+                    </div>
+                </div>
+            </div>          
+        </div>
+
+        <div id="Stats-output">
+        </div>
+        <!-- Div which will hold the Output -->
+        <div id="output">
+        </div>
+    </div>
+    
+<script>                
+    var camera, controls, scene, container, renderer, mesh, box, normals;
+    var R1 = 1.0, R2 = 0.3, R3 = 0.5, nR1 = 25, nR2 = 10;
+    var obj = 0
+    var showNormals = false, texture=false, wireframe=false, showBox=false, invert_faces=false, axis=false
+    var xRotation=false, yRotation=false, zRotation=false, speed=0.005
+
+    const loader = new THREE.TextureLoader().load('https://threejsfundamentals.org/threejs/resources/images/wall.jpg');
+    
+    let defaultMaterial = new THREE.MeshStandardMaterial({
+        flatShading: true,
+        wireframe: wireframe,
+        side: THREE.DoubleSide ,
+        map: (texture)?  loader: null,
+    });
+
+    if ( WEBGL.isWebGLAvailable() === false ) {
+        document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+    }
+
+    let change = function(change, into = null){
+        if(change == 'object') obj = into
+        else if (into != null) window[change] = into
+        else window[change] = !window[change]
+
+        defaultMaterial = new THREE.MeshStandardMaterial({
+            flatShading: true,
+            wireframe: wireframe,
+            side: THREE.DoubleSide ,
+            map: (texture)? loader: null ,
+        });
+
+        renderLightsAndObj()
+    }
+
+    let defineObject = function(obj_id){
+        obj = obj_id;
+
+        if(obj_id == 0)
+            mesh = createCone(2*R1, 2*R2, nR2, nR1 )
+        else if(obj_id == 1)
+            mesh = createCylinder ( 2*R1, 2*R2, nR2, nR1 );
+        else if(obj_id == 2)
+            mesh = createParaboloid ( 2*R1, 2*R2, nR2, nR1  );
+        else if(obj_id == 3)
+            mesh = createHyperboloid (  R1, R2, R3, nR1/3, nR2  );
+        else if(obj_id == 4)
+            mesh = createHyperbolicParaboloid ( 2*R1, 2*R1, nR1/2, nR1/2  );
+        else if (obj_id == 5)
+            mesh = createSphere ( 1.5*R1, 1.5*R2, 1.5*R3, nR2, nR1  );
+        else if (obj_id == 6)
+            mesh = createTorus (R1, R2, nR2, nR1  );
+    }
+
+    let renderLightsAndObj = function(){
+        while(scene.children.length > 0){ 
+            scene.remove(scene.children[0]); 
+        }
+        createLights()
+
+        defineObject(obj)        
+    }
+
+    function init() {       
+        //Create scene
+        container = document.getElementById( 'output' );
+
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color( 0xeeeeee );
+        createCamera()
+        createControls()
+        createLights()
+        createRenderer()
+        renderLightsAndObj()
+
+        controls = new THREE.TrackballControls( camera, renderer.domElement );
+        controls.rotateSpeed = 2.5;
+        controls.zoomSpeed = 1.2;
+        controls.panSpeed = 2.5;
+        controls.noZoom = false;
+        controls.noPan = false;
+        controls.staticMoving = true;
+        controls.dynamicDampingFactor = 0.3;
+        controls.keys = [ 65, 83, 68 ];
+
+        controls.addEventListener( 'change', render );
+        window.addEventListener( 'resize', onWindowResize, false );
+
+         // start the animation loop
+        renderer.setAnimationLoop( () => {
+            update();
+            render();
+        } );
+    }
+
+    function createCamera(){
+        camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 2000 );
+        camera.position.set( 0.0, 5, 5 * 3.5 );
+    }
+    
+    function createControls(){
+        controls = new THREE.OrbitControls( camera, container );
+    }
+
+    function createLights(){
+        const ambientLight = new THREE.HemisphereLight(0xddeeff, 0x202020, 5);
+        const mainLight = new THREE.DirectionalLight( 0xffffff, 5 );
+        mainLight.position.set( 10, 10, 10 );
+
+        scene.add( ambientLight, mainLight );
+    }
+    
+    function createRenderer() {
+        renderer = new THREE.WebGLRenderer( { antialias: true } );
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+        renderer.setPixelRatio( window.devicePixelRatio );
+
+        renderer.gammaFactor = 2.2;
+        renderer.gammaOutput = true;
+
+        renderer.physicallyCorrectLights = true;
+
+        container.appendChild( renderer.domElement );
+    }
+    
+    function update(){
+
+    }
+
+    function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        controls.handleResize();
+        render();
+    }
+
+    function animate() {
+        requestAnimationFrame( animate );
+        if(xRotation || yRotation || zRotation){
+
+            for(i = 0; i <scene.children.length; i++){  
+                let axisToRotate = new THREE.Vector3((xRotation)?1:0, (yRotation)?1:0, (zRotation)?1:0)              
+                scene.children[i].rotateOnAxis(axisToRotate, speed)                
+                
+                if(showBox)box.update();
+                if(showNormals)normals.update();
+            }            
+        }
+        render()
+        controls.update();
+    }
+
+    function render() {
+        renderer.render( scene, camera );
+    }
+    
+    init();
+    animate();
+
+
+</script>
+<script>
+</script>
+</body>
+</html>
